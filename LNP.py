@@ -6,6 +6,7 @@ import struct
 import sys
 import protocol
 
+
 def send(s, message='', id=None, key=None):
     utf = message
 
@@ -62,9 +63,7 @@ def recv(s, msg_buffers, recv_len, msg_len, msg_ids):
 
         msg_buffers[s] = b''
         msg_len[s] = length
-        msg_ids[s] = {v: k for k, v in protocol.PACKETS.items()} [code]
-
-
+        msg_ids[s] = {v: k for k, v in protocol.PACKETS.items()}[code]
 
     # Check if the message is done buffering.
     if s in msg_len and len(msg_buffers[s]) == msg_len[s]:
