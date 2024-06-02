@@ -1,0 +1,21 @@
+# Generate server's private key
+openssl genrsa -out server-key-private.pem 2048
+
+# Generate server's public key
+openssl rsa -in server-key-private.pem -pubout -out server-key-public.pem
+
+# Generate CA's private key
+openssl genrsa -out ca-key-private.pem 2048
+
+# Generate CA's public key
+openssl rsa -in ca-key-private.pem -pubout -out ca-key-public.pem
+
+# Generate signed certificates for the clients
+echo "alice" > alice.txt
+openssl dgst -sha256 -sign ca-key-private.pem -out alice.cert alice.txt
+
+echo "bob" > bob.txt
+openssl dgst -sha256 -sign ca-key-private.pem -out bob.cert bob.txt
+
+echo "michael" > michael.txt
+openssl dgst -sha256 -sign ca-key-private.pem -out michael.cert michael.txt
