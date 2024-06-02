@@ -14,6 +14,13 @@ MAX_USR = 100
 TIMEOUT = 60
 
 
+def send_public_key(client_socket):
+    client_socket.send(server_public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    ))
+
+
 def verify_key(username, certificate):
     with open("ca_public_key.pem", "rb") as f:
         ca_public_key = load_pem_public_key(key_file.read())
