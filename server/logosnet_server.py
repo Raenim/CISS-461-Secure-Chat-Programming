@@ -3,10 +3,34 @@ import socket
 import select
 import queue
 import time
+
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
+
 from lib import LNP
 
 MAX_USR = 100
 TIMEOUT = 60
+
+
+def verify_key(username, certificate):
+    with open("ca_public_key.pem", "rb") as f:
+        ca_public_key = load_pem_public_key(key_file.read())
+    try:
+        ca_public_key.verify(
+            certificate,
+            username.encode(),
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256()
+        )
+        return True
+    except Exception as e:
+        print(e)
+        return False
 
 
 def is_username(name, usernames):
@@ -21,7 +45,6 @@ def is_username(name, usernames):
             return "USERNAME-TAKEN"
 
     return "USERNAME-ACCEPT"
-
 
 
 def is_private(msg, usernames):
@@ -131,7 +154,6 @@ def main():
         users = list(user_connect_time)
         for s in users:
             if (time.time() - user_connect_time[s]) > TIMEOUT:
-
                 LNP.send(s, '', "EXIT")
 
                 inputs.remove(s)
@@ -139,14 +161,13 @@ def main():
                 n_users -= 1
                 del user_connect_time[s]
 
-
         readable, writable, exceptional = select.select(inputs, outputs, inputs)
 
         for s in readable:
 
-	    ###
-	    ### Processing server connection requests
-	    ###
+            ###
+            ### Processing server connection requests
+            ###
             if s is server:
 
                 connection, client_addr = s.accept()
@@ -165,7 +186,7 @@ def main():
                     if args.debug:
                         print("        SERVER: new connection from " + str(client_addr))
 
-                else: #>100 users
+                else:  #>100 users
                     LNP.send(connection, '', "FULL")
                     connection.close()
 
@@ -174,9 +195,9 @@ def main():
                               str(client_addr) + " refused, server full")
 
 
-	 ###
-	 ### Processing client msgs
-	 ###
+            ###
+            ### Processing client msgs
+            ###
             else:
 
                 msg_status = LNP.recv(s, msg_buffers, recv_len, msg_len, msg_ids)
@@ -191,10 +212,9 @@ def main():
                     # IF YOU ENCRYPT OR DECRYPT msg MAKE SURE THAT WHATEVER IS PRINTED FROM THE
                     # LINE BELOW IS PLAIN TEXT
                     # Note: for the end-to-end encryption clearly you will print whatever your receive
-                    print("        received " + str(msg) +       " from " + str(s.getpeername()))
+                    print("        received " + str(msg) + " from " + str(s.getpeername()))
 
-
-	         #Username exists for this client, this is a message
+                    #Username exists for this client, this is a message
                     if s in usernames:
                         pvt_user = is_private(msg, usernames)
                         msg = "> " + usernames[s] + ": " + msg
@@ -203,7 +223,7 @@ def main():
                         else:
                             broadcast_queue(msg, msg_queues, exclude=[s])
 
-	         #no username yet, this message is a username
+                    #no username yet, this message is a username
                     else:
                         username_status = is_username(msg, usernames)
                         LNP.send(s, '', username_status)
@@ -216,14 +236,14 @@ def main():
                             print("        SERVER: " + msg)
                             broadcast_queue(msg, msg_queues)
 
-                        else: #invalid username
+                        else:  #invalid username
                             user_connect_time[s] = time.time()
                             msg = None
 
 
-	        ###
-	        ### Closing connection with client
-	        ###
+                ###
+                ### Closing connection with client
+                ###
                 elif msg_id == "NO_MSG" or msg_id == "EXIT":
 
                     if args.debug:
@@ -237,7 +257,7 @@ def main():
                     if s in msg_queues:
                         del msg_queues[s]
 
-	         #load disconnect message into msg_queues
+                    #load disconnect message into msg_queues
                     if s in usernames:
                         for sock in msg_queues:
                             msg_queues[sock].put("User " + usernames[s] + " has left")
@@ -246,13 +266,12 @@ def main():
                     if s in user_connect_time:
                         del user_connect_time[s]
 
-	         #If user sent disconnect message need to send one back
+                    #If user sent disconnect message need to send one back
                     if msg_id == "EXIT":
                         LNP.send(s, '', "EXIT")
 
                     n_users -= 1
                     s.close()
-
 
         #Send messages to clients
         for s in writable:
@@ -270,7 +289,6 @@ def main():
                     #     print("        sending " + next_msg + " to " + str(s.getpeername()))
                     LNP.send(s, next_msg)
 
-
         #Remove exceptional sockets from the server
         for s in exceptional:
 
@@ -278,7 +296,7 @@ def main():
                 print("        SERVER: handling exceptional condition for " + str(s.getpeername()))
 
             inputs.remove(s)
-	 #if s in outputs:
+            #if s in outputs:
             outputs.remove(s)
             del msg_queues[s]
             del usernames[s]

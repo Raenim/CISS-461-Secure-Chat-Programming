@@ -32,6 +32,7 @@ def get_args():
 
     return parser.parse_args()
 
+
 #Main method
 def main():
     '''
@@ -69,21 +70,22 @@ def main():
             ### Process server messages
             ###
             if s == server:
-                
-                # This point may iterate multiple times until the message is completely read since LNP.recv, receives a few bytes at a time.
+
+                # This point may iterate multiple times until the message is completely read since LNP.recv,
+                # receives a few bytes at a time.
                 code = LNP.recv(s, msg_buffer, recv_len, msg_len, msg_ids)
 
-                # This will not happen until the message is switched to MSG_COMPLETE when then it is read from the buffer.
+                # This will not happen until the message is switched to MSG_COMPLETE when then it is read from the
+                # buffer.
                 if code != "LOADING_MSG":
                     code_id, msg = LNP.get_msg_from_queue(s, msg_buffer, recv_len, msg_len, msg_ids, symmetric_keys)
-                    
+
                     if code_id is not None:
                         code = code_id
                         # print("Message ID: " + id)
 
-                
                 if code == "MSG_CMPLT":
-                    
+
                     if username_next:
                         print("complete")
                         username_msg = msg
@@ -94,7 +96,7 @@ def main():
                         username_next = False
 
                     elif msg:
-		        #If username exists, add message prompt to end of message
+                        #If username exists, add message prompt to end of message
                         if username != '':
                             sys.stdout.write('\r' + msg + '\n')
                             sys.stdout.write("> " + username + ": ")
@@ -150,15 +152,15 @@ def main():
             except queue.Empty:
                 msg = None
 
-	 #if there is a message to send
+            #if there is a message to send
             if msg:
 
-	     #if exit message, send the exit code
+                #if exit message, send the exit code
                 if msg == "exit()":
                     outputs.remove(s)
                     LNP.send(s, '', "EXIT")
 
-	     #otherwise just send the messsage
+                #otherwise just send the messsage
                 else:
                     LNP.send(s, msg)
 
@@ -167,6 +169,7 @@ def main():
             inputs.remove(s)
 
     server.close()
+
 
 if __name__ == '__main__':
     main()

@@ -1,4 +1,4 @@
-
+# source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
@@ -14,6 +14,7 @@ with open("ca_private_key.pem", "wb") as f:
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption()
     ))
+
 with open("ca_public_key.pem", "wb") as f:
     f.write(ca_public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
