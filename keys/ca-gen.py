@@ -1,3 +1,4 @@
+
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
@@ -18,6 +19,5 @@ with open("ca_public_key.pem", "wb") as f:
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     ))
-
 
 

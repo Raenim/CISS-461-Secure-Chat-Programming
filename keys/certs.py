@@ -20,5 +20,5 @@ with open("ca_private_key.pem", "rb") as f:
         password=None
     )
 
-for username in ["Alice", "Bob", "Charlie"]:
+for username in ["Alice", "Bob", "Michael"]:
     create_certificate(username, ca_private_key)
