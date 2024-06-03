@@ -14,13 +14,6 @@ MAX_USR = 100
 TIMEOUT = 60
 
 
-def send_public_key(client_socket):
-    client_socket.send(server_public_key.public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo
-    ))
-
-
 def verify_key(username, certificate):
     with open("ca_public_key.pem", "rb") as f:
         ca_public_key = load_pem_public_key(key_file.read())
@@ -38,6 +31,19 @@ def verify_key(username, certificate):
     except Exception as e:
         print(e)
         return False
+
+
+def receive_symmetric_key(client_socket):
+    encrypted_key = client_socket.recv(256)
+    symmetric_key = server_private_key.decrypt(
+        encrypted_key,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    return symmetric_key
 
 
 def is_username(name, usernames):

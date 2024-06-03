@@ -14,7 +14,7 @@ def create_certificate(username, ca_private_key):
         ))
 
 
-with open("ca_private_key.pem", "rb") as f:
+with open("../server/ca_private_key.pem", "rb") as f:
     ca_private_key = serialization.load_pem_private_key(
         f.read(),
         password=None

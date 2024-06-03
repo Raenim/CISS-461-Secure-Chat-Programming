@@ -8,14 +8,14 @@ ca_private_key = rsa.generate_private_key(
 )
 ca_public_key = ca_private_key.public_key()
 
-with open("ca_private_key.pem", "wb") as f:
+with open("../server/ca_private_key.pem", "wb") as f:
     f.write(ca_private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption()
     ))
 
-with open("ca_public_key.pem", "wb") as f:
+with open("../client/ca_public_key.pem", "wb") as f:
     f.write(ca_public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
